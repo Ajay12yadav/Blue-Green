@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blue-green-service
+spec:
+  type: ClusterIP
+  selector:
+    app: blue-green
+    version: blue   # <--- THIS IS THE SWITCH: Points to blue initially
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000

@@ -1,15 +1,17 @@
-from node:20-alpine AS builder
-workdir /app
-copy package.json
-run npm ci --only= production
+# Multi-stage build for lightweight final image
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --omit=dev
 
-from node:20-alpine AS runner
-workdir /app
-copy --from=builder /app/node_modules ./node_modules
-copy public ./public
+FROM node:20-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY server.js package.json ./
+COPY public ./public
 
-env NODE_ENV=production
-expose 3000
+ENV NODE_ENV=production
+EXPOSE 3000
 
-user node
-cmd ["node","server.js"]
+USER node
+CMD ["node", "server.js"]
